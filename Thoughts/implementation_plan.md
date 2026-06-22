@@ -44,10 +44,10 @@ To guide a user from **Stressed** $(-0.6, 0.8)$ to **Calm** $(0.6, -0.6)$:
 
 ## Questionnaire Design & Research Backing
 
-To map a user's emotional state to Valence-Arousal coordinates via minimal drop-down questions, we utilize research-backed scales from affective psychology:
+To map a user's emotional state to Valence-Arousal coordinates, we utilize a **9x9 Affect Grid** for the primary user input (representing Valence and Arousal as coordinates), with a **Hybrid Conversational Fallback UI** for users who need assistance. This is backed by established psychological scales:
 
-1.  **The Affect Grid (Russell, Weiss, & Mendelsohn, 1989):** A single-item scale designed to measure valence and arousal simultaneously on a coordinate system. We translate the bipolar dimensions of the grid into direct semantic differential drop-downs.
-2.  **Semantic Differential Scale (Bradley & Lang, 1994):** Evaluates emotions using bipolar adjectives (e.g., *Happy-Sad* for Valence, *Stimulated-Relaxed* or *Tense-Calm* for Arousal).
+1.  **The Affect Grid (Russell, Weiss, & Mendelsohn, 1989):** A single-item scale designed to measure valence and arousal simultaneously on a 2D coordinate system (Columns 1-9 for Valence, Rows 1-9 for Arousal).
+2.  **Semantic Differential Scale (Bradley & Lang, 1994):** Uses bipolar adjectives (e.g., *Happy-Sad* for Valence, *Stimulated-Relaxed* or *Tense-Calm* for Arousal) to quantify core affect.
 3.  **Generalized Anxiety Disorder-2 (GAD-2):** A brief clinical screening tool used to capture the user's chronic tension baseline.
 
 ### A. Initial Session Questionnaire (Baseline Registration)
@@ -67,31 +67,20 @@ To map a user's emotional state to Valence-Arousal coordinates via minimal drop-
     *   *Question:* "Which genre of Bengali music do you connect with most when you need comfort?"
     *   *Options:* Rabindra Sangeet / Folk & Baul / Modern Acoustic / Bengali Rock.
 
-### B. Subsequent Sessions Questionnaire (Max 3 Questions)
+### B. Subsequent Sessions Input (9x9 Affect Grid or Fallback UI)
 *Presented to the user at the start of each therapy session to immediately calculate their starting coordinate $(V_0, A_0)$.*
 
-1.  **Current Valence (Pleasantness):**
-    *   *Question:* "Right now, my mood feels..."
-    *   *Options:*
-        *   "Very Unpleasant / Highly Distressed" (Valence: -0.8)
-        *   "Slightly Unpleasant / Down" (Valence: -0.4)
-        *   "Neutral / Okay" (Valence: 0.0)
-        *   "Pleasant / Peaceful" (Valence: 0.4)
-        *   "Very Pleasant / Happy" (Valence: 0.8)
-2.  **Current Arousal (Activation):**
-    *   *Question:* "Right now, my energy level feels..."
-    *   *Options:*
-        *   "Tense / Agitated / Highly Alert" (Arousal: 0.8)
-        *   "Active / Energetic" (Arousal: 0.4)
-        *   "Neutral / Normal" (Arousal: 0.0)
-        *   "Relaxed / Calm" (Arousal: -0.4)
-        *   "Tired / Low Energy / Sluggish" (Arousal: -0.8)
-3.  **Session Goal:**
-    *   *Question:* "What is your target for this session?"
-    *   *Options:*
-        *   "Wind down to deep calm" (Target: Valence +0.7, Arousal -0.7)
-        *   "Shift from low energy to focused/alert" (Target: Valence +0.6, Arousal +0.3)
-        *   "Stay reflective / mindful transition" (Target: Valence +0.3, Arousal -0.3)
+1.  **Primary Input — The 9x9 Affect Grid:**
+    *   The user clicks a single cell on the 9x9 grid to submit their state.
+    *   Columns 1-9 map to Valence ($V = \frac{\text{Col}-5}{4}$, range $[-1.0, 1.0]$).
+    *   Rows 1-9 map to Arousal ($A = \frac{\text{Row}-5}{4}$, range $[-1.0, 1.0]$).
+2.  **Secondary Input — Hybrid Fallback UI (If user clicks "Unsure/Help"):**
+    *   *Clickable Mood Tags (Chips):* `Overwhelmed`, `Anxious`, `Tired`, `Sad`, `Burned Out`, `Calm`. Clicking a tag assigns a default coordinate.
+    *   *Optional Open-Ended Text Box:* Let's users describe their mood in natural language.
+    *   *Refinement:* If text is provided, the **Diagnostic Agent (LLM)** refines the baseline tag coordinates based on the text context and highlights the refined cell on the grid for user confirmation.
+3.  **Session Goal Selector:**
+    *   *Options:* "Wind down to deep calm" (Target: $V=0.7$, $A=-0.7$), "Shift from low energy to alert" (Target: $V=0.6$, $A=0.3$), or "Stay reflective/mindful transition" (Target: $V=0.3$, $A=-0.3$).
+
 
 ---
 
@@ -154,9 +143,12 @@ sequenceDiagram
         User-->>Coord: Submit Baseline Answers
         Coord->>Coord: Store Baseline in LTM
     end
-    Coord-->>User: Present Session Questionnaire (Max 3 Dropdowns)
-    User-->>Coord: Submit Mood/Energy/Goal
-    Coord->>Diag: Parse answers to coordinates (-0.8 to 0.8)
+    Coord-->>User: Present 9x9 Affect Grid (or Fallback UI)
+    User-->>Coord: Submit Grid Cell / Tag & Text
+    opt Fallback UI Used (Tag & Text)
+        Coord->>Diag: Parse answers to coordinates (-1.0 to 1.0)
+        Diag-->>Coord: Suggested Grid Coordinates
+    end
     Coord->>Safety: Check for crisis/extreme safety triggers
     Safety-->>Coord: Safe to proceed (No crisis detected)
     Coord->>Traj: Request trajectory from (V_start, A_start) to (V_target, A_target)

@@ -42,16 +42,22 @@ To prove the system is clinically sound before deploying it, we must validate th
 
 ---
 
-## 3. Key Study & Reference Resources
+## 3. Key Study & Reference Resources (Measuring Valence & Arousal)
 
-To align our technical model with established music therapy standards, we rely on the following psychological frameworks. We recommend reviewing these:
+To design our dropdown questionnaire and validate our emotional coordinate mapping, we draw from the three primary methods used in psychological research to measure Valence (Pleasure) and Arousal (Energy):
 
-1.  **The Affect Grid (Russell, Weiss, & Mendelsohn, 1989)**
-    *   *Focus:* Introduces a single-item scale to quickly measure Valence and Arousal on a 9x9 grid. This is the direct basis for our user mood inputs.
+1.  **The Affect Grid (Russell, Weiss, & Mendelsohn, 1989) — *The Single-Item Grid Method***
+    *   *How it works:* Participants are shown a single 9x9 grid where the horizontal axis represents Pleasure (displeasure to pleasure) and the vertical axis represents Arousal (sleepiness to high arousal). They mark a single "X" to record their state.
+    *   *Clinical Value:* Proves that users can reliably report their current core affect in a single action without completing long surveys.
     *   *Reference:* Russell, J. A., Weiss, A., & Mendelsohn, G. A. (1989). *Affect grid: A single-item scale of pleasure and arousal.* Journal of Personality and Social Psychology, 57(3), 493.
-2.  **The Self-Assessment Manikin (SAM) (Bradley & Lang, 1994)**
-    *   *Focus:* A non-verbal pictorial assessment technique measuring pleasure, arousal, and dominance. Good for understanding visual representation of affect.
+
+2.  **The PAD Emotion State Scales (Mehrabian & Russell, 1974) — *The Verbal Adjective Method***
+    *   *How it works:* Uses semantic differential items consisting of bipolar adjective pairs. Participants rate their state between word pairs like *Happy–Unhappy* (Valence) and *Excited–Calm* or *Stimulated–Relaxed* (Arousal).
+    *   *Clinical Value:* Provides the exact verbal descriptors (e.g., sluggish, relaxed, tense) we use in our dropdown questionnaire to map to coordinates.
+    *   *Reference:* Mehrabian, A., & Russell, J. A. (1974). *An approach to environmental psychology.* MIT Press. (See also: Mehrabian, A. (1996). *Manual for the Balanced Measure of Character, Temperament, and State (BMT).*).
+
+3.  **The Self-Assessment Manikin (SAM) (Bradley & Lang, 1994) — *The Pictorial Method***
+    *   *How it works:* A non-verbal pictorial scale where participants select from cartoon figures representing degrees of pleasure (from a smiling figure to a frowning one) and arousal (from a wide-awake, excited figure with an exploding chest to a sleepy, calm one).
+    *   *Clinical Value:* Proves that visual/pictorial representations bypass language barriers and are highly intuitive for fast emotional self-reporting.
     *   *Reference:* Bradley, M. M., & Lang, P. J. (1994). *Measuring emotion: The Self-Assessment Manikin and the semantic differential.* Journal of Behavior Therapy and Experimental Psychiatry, 25(1), 49-59.
-3.  **Russell's Circumplex Model of Affect (Russell, 1980)**
-    *   *Focus:* The core 2D coordinate model representing emotions along Valence and Arousal axes.
-    *   *Reference:* Russell, J. A. (1980). *A circumplex model of affect.* Journal of Personality and Social Psychology, 39(6), 1161.
+
