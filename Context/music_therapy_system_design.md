@@ -90,8 +90,8 @@ To solve these failures, we design a multi-agent system where clinical rules are
       ▼                     ▼                     ▼
 ┌───────────┐         ┌───────────┐         ┌───────────┐
 │Diagnostic │         │Deterministic│       │Safety Guard│
-│  Agent    │         │Trajectory │         │   Agent   │
-│(Sentiment)│         │   Tool    │         │(HITL/Gate)│
+│  Agent    │         │Trajectory │         │   Skill   │
+│(Sentiment)│         │   Tool    │         │(Regex/Gate)│
 └───────────┘         └─────┬─────┘         └───────────┘
                             │
                             ▼
@@ -107,8 +107,8 @@ To solve these failures, we design a multi-agent system where clinical rules are
     Engages the user in brief reflective dialogue. Uses natural language processing to extract the user's initial state on the Valence-Arousal grid (e.g., User: "I am so angry and overwhelmed right now" $\rightarrow$ Diagnostic output: $V = -0.7$, $A = 0.8$).
 3.  **Deterministic Trajectory Tool (Mathematical ISO Engine):**
     Computes a step-by-step path from the starting state $(V_0, A_0)$ to the target calm state $(V_t, A_t)$ over a user-selected number of steps. It queries the local curated CSV database, finding tracks that minimize Euclidean distance to each step point without repetition.
-4.  **Safety Guard Agent (Clinical Safety Net):**
-    Scans the conversation in real-time. If extreme crisis keywords are detected (e.g., self-harm, severe depressive episodes), it immediately intercepts, halts the session, and triggers a safety response (providing crisis helpline resources).
+4.  **Safety Guard Skill (Clinical Safety Net):**
+    A deterministic function that scans the conversation/text inputs in real-time. If extreme crisis keywords or phrases are matched, it immediately returns a flag indicating a safety violation to trigger the crisis intervention workflow.
 
 ---
 
@@ -116,5 +116,5 @@ To solve these failures, we design a multi-agent system where clinical rules are
 
 *   [ ] **Create Database:** Curate `bengali_music_db.csv` with 15-20 tracks labeled with `valence` and `arousal` values.
 *   [ ] **Implement Trajectory Logic:** Write a Python function that maps trajectories in a 2D space.
-*   [ ] **Develop Agent Layer:** Build the Diagnostic, Coordinator, and Safety Guard agents using standard agent frameworks.
+*   [ ] **Develop Agent & Skill Layer:** Build the Diagnostic and Coordinator agents and write the Safety Guard regex-checking skill.
 *   [ ] **Build Session Interface:** Create a CLI or local UI to run and test the complete conversational loop.
