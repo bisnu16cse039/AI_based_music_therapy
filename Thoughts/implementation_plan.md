@@ -65,7 +65,7 @@ To map a user's emotional state to Valence-Arousal coordinates, we utilize a **9
     *   *Options:* Mostly Positive / Neutral / Mostly Negative.
 3.  **Music Preference Profile:**
     *   *Question:* "Which genre of Bengali music do you connect with most when you need comfort?"
-    *   *Options:* Rabindra Sangeet / Folk & Baul / Modern Acoustic / Bengali Rock.
+    *   *Options:* Rabindra Sangeet / Nazrul Geeti / Folk & Baul / Modern Acoustic / Bengali Band / Old Movie Songs.
 
 ### B. Subsequent Sessions Input (9x9 Affect Grid or Fallback UI)
 *Presented to the user at the start of each therapy session to immediately calculate their starting coordinate $(V_0, A_0)$.*
@@ -164,10 +164,13 @@ sequenceDiagram
 
 ### Data Layer
 #### [NEW] [bengali_music_db.csv](file:///Users/bisnuchandrasarkar/Developer/Projects/agentic_ai/AI_based_music_therapy/Data/bengali_music_db.csv)
-Contains ~20 curated Bengali tracks, tagged with: `track_id`, `title`, `artist`, `valence`, `arousal`, `youtube_url`, `description`.
+Contains ~20 curated Bengali tracks, tagged with: `track_id`, `title`, `artist`, `genre`, `is_instrumental`, `mood_tags`, `tempo_bpm` (optional), `valence`, `arousal`, `youtube_url`, `description`.
 
 #### [NEW] [user_profile.json](file:///Users/bisnuchandrasarkar/Developer/Projects/agentic_ai/AI_based_music_therapy/Data/user_profile.json)
 LTM storage file initialization.
+
+#### [NEW] [data_labeling_guide.md](file:///Users/bisnuchandrasarkar/Developer/Projects/agentic_ai/AI_based_music_therapy/Thoughts/data_labeling_guide.md)
+Reference document defining schema, 1-9 Affect Grid ratings, lyrics vs. music rules, and anchor songs.
 
 ### Core Codebase
 #### [NEW] [iso_trajectory_tool.py](file:///Users/bisnuchandrasarkar/Developer/Projects/agentic_ai/AI_based_music_therapy/src/iso_trajectory_tool.py)
