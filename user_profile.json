@@ -1,0 +1,44 @@
+{
+  "user_id": "user_01",
+  "baseline": {
+    "gad2_score": 3,
+    "preferred_genre": "Modern Acoustic",
+    "created_at": "2026-07-05T21:24:20.424162",
+    "updated_at": "2026-07-05T21:24:20.425077",
+    "total_sessions": 1,
+    "success_rate": 1.0
+  },
+  "session_history": [
+    {
+      "session_id": "session_concluder_verify",
+      "date": "2026-07-05T21:24:20.424733",
+      "starting_coords": [
+        -0.7,
+        0.6
+      ],
+      "final_coords": [
+        0.7,
+        -0.7
+      ],
+      "goal_type": "calm",
+      "tracks_played": [
+        "track_02",
+        "track_11"
+      ],
+      "transition_history": [
+        {
+          "step": 1,
+          "genre": "Bengali Band",
+          "status": "no_change"
+        },
+        {
+          "step": 2,
+          "genre": "Modern Acoustic",
+          "status": "calmer"
+        }
+      ],
+      "outcome": "successful",
+      "completed": true
+    }
+  ]
+}
