@@ -11,7 +11,7 @@ from google.adk.tools import FunctionTool
 load_dotenv()
 
 # Model configuration
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
 # Database & Profile paths
 DB_NAME = 'bengali_music_db.csv'
