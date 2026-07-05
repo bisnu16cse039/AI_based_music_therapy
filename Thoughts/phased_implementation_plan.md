@@ -85,10 +85,16 @@ graph TD
 **Objective:** Verify the clinical logic and run the full ADK browser-based interface.
 
 ### Tasks
-1. **Write Automated Tests:** Embed test scenarios in the notebook to verify:
-   * Trajectory calculation constraints.
-   * Target coordinates for Calm $(0.70, -0.70)$ and Focus $(0.50, -0.20)$.
-   * Safety Guard crisis triggers.
-   * LTM file reading/writing.
-2. **Manual Loop Dry Runs:** Simulates typical user flows (Stress to Calm, Excited to Focus) inside the terminal loop.
-3. **Setup ADK Web UI:** Provide cell-based instructions and CLI commands to start the local ADK Web server (`adk web`) to demonstrate the interactive agents in the browser.
+1. **Write Automated Tests:**
+   * **1.1 Test Trajectory Calculation & Constraints:** Write tests asserting correct trajectory math, boundary clamping $[-1.0, 1.0]$, and fatigue-prevention filtering.
+   * **1.2 Test Target Coordinate Configurations:** Verify target assignments map correctly to Calm $(0.70, -0.70)$ and Study Focus $(0.50, -0.20)$.
+   * **1.3 Test Safety Guard Interception:** Check that safety crisis triggers work reliably for crisis phrases in both Bengali/Benglish and English.
+   * **1.4 Test LTM Read/Write Integrity:** Ensure user profile and session logs are read/written correctly from/to `user_profile.json` without file corruption.
+2. **Conduct Manual Loop Dry Runs:**
+   * **2.1 Simulate Stress-to-Calm Progression:** Verify loop behavior when simulating a highly stressed starting state transitioning to the Calm target coordinate.
+   * **2.2 Simulate Excited-to-Focus Progression:** Verify loop behavior when simulating a hyper/excited starting state transitioning to the Study Focus target coordinate.
+   * **2.3 Test Recovery and Recalibration Paths:** Walk through manual inputs mimicking "No Change" and "Worse" states to confirm active adjustment and rescue tracks fire.
+3. **Setup ADK Web UI:**
+   * **3.1 Configure Agent Manifests for Web:** Ensure Coordinator and Diagnostic agents are configured for Web client integration.
+   * **3.2 Embed Web UI Startup Instructions:** Write detailed cell documentation and CLI command triggers (`adk web`) in the notebook.
+   * **3.3 End-to-End Browser Verification:** Run the local ADK Web server to visually test user onboarding, chatting, mood diagnostics, and track recommendations.
