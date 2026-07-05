@@ -1,17 +1,40 @@
 {
   "user_id": "user_01",
   "baseline": {
-    "gad2_score": 3,
+    "gad2_score": 2,
     "preferred_genre": "Modern Acoustic",
-    "created_at": "2026-07-05T21:24:20.424162",
-    "updated_at": "2026-07-05T21:24:20.425077",
-    "total_sessions": 1,
-    "success_rate": 1.0
+    "created_at": "2026-07-05T23:33:59.148982",
+    "updated_at": "2026-07-05T23:33:59.171950",
+    "total_sessions": 5,
+    "success_rate": 0.8
   },
   "session_history": [
     {
-      "session_id": "session_concluder_verify",
-      "date": "2026-07-05T21:24:20.424733",
+      "session_id": "test_ltm_integrity",
+      "date": "2026-07-05T23:33:59.149443",
+      "starting_mood": "Sad / Gloomy",
+      "starting_coords": [
+        -0.7,
+        -0.4
+      ],
+      "target_coords": [
+        0.75,
+        -0.75
+      ],
+      "goal_type": "calm",
+      "playlist": [
+        {
+          "track_id": "track_01",
+          "title": "Asha",
+          "feedback": "Calmer"
+        }
+      ],
+      "completed": true,
+      "outcome": "successful"
+    },
+    {
+      "session_id": "session_sim_3359",
+      "date": "2026-07-05T23:33:59.163163",
       "starting_coords": [
         -0.7,
         0.6
@@ -22,8 +45,73 @@
       ],
       "goal_type": "calm",
       "tracks_played": [
-        "track_02",
-        "track_11"
+        "track_11",
+        "track_45",
+        "track_02"
+      ],
+      "transition_history": [
+        {
+          "step": 1,
+          "genre": "Bengali Band",
+          "status": "calmer"
+        },
+        {
+          "step": 2,
+          "genre": "Bengali Band",
+          "status": "calmer"
+        }
+      ],
+      "outcome": "successful",
+      "completed": true
+    },
+    {
+      "session_id": "session_sim_3359",
+      "date": "2026-07-05T23:33:59.166681",
+      "starting_coords": [
+        0.7,
+        0.6
+      ],
+      "final_coords": [
+        0.7,
+        -0.7
+      ],
+      "goal_type": "focus",
+      "tracks_played": [
+        "track_17",
+        "track_18",
+        "track_26"
+      ],
+      "transition_history": [
+        {
+          "step": 1,
+          "genre": "Old Movie Songs",
+          "status": "calmer"
+        },
+        {
+          "step": 2,
+          "genre": "Bengali Band",
+          "status": "calmer"
+        }
+      ],
+      "outcome": "successful",
+      "completed": true
+    },
+    {
+      "session_id": "session_sim_3359",
+      "date": "2026-07-05T23:33:59.171602",
+      "starting_coords": [
+        -0.7,
+        0.6
+      ],
+      "final_coords": [
+        0.7,
+        -0.7
+      ],
+      "goal_type": "calm",
+      "tracks_played": [
+        "track_11",
+        "track_46",
+        "track_02"
       ],
       "transition_history": [
         {
@@ -38,6 +126,31 @@
         }
       ],
       "outcome": "successful",
+      "completed": true
+    },
+    {
+      "session_id": "session_sim_3359",
+      "date": "2026-07-05T23:33:59.175527",
+      "starting_coords": [
+        -0.7,
+        -0.4
+      ],
+      "final_coords": [
+        0.75,
+        -0.75
+      ],
+      "goal_type": "calm",
+      "tracks_played": [
+        "track_06"
+      ],
+      "transition_history": [
+        {
+          "step": 1,
+          "genre": "Rabindra Sangeet",
+          "status": "worse"
+        }
+      ],
+      "outcome": "rescued",
       "completed": true
     }
   ]
