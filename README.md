@@ -41,9 +41,45 @@ The **ISO Principle** states that music must first match the user's starting moo
 
 ---
 
-## 🛠️ Architecture Overview
+## 🛠️ System Architecture
 
-The system uses a collaborative multi-agent structure managed under the Google ADK:
+The Music ISO-Therapy System is structured as a Level 3 Collaborative Multi-Agent System where a central coordinator orchestrates a sub-agent for diagnostics and multiple deterministic tools for clinical calculations, database queries, and safety.
+
+```mermaid
+graph TD
+    User(["User"]) --> Coordinator["Coordinator Agent (Orchestrator)"]
+    Coordinator --> User
+    
+    Coordinator --> check_profile["check_profile_tool"]
+    check_profile --> LTM[("user_profile.json (LTM Profile)")]
+    
+    Coordinator --> onboarding["onboarding_tool"]
+    onboarding --> LTM
+    
+    Coordinator --> Diagnostic["DiagnosticAgent (LLM Mood Analyst)"]
+    Diagnostic --> Coordinator
+    Diagnostic --> set_coords["set_mood_coordinates_tool"]
+    
+    Coordinator --> select_goal["select_goal_tool"] 
+    select_goal --> TrajPlanner["Trajectory Planner (Linear Interpolator)"]
+    select_goal --> TrackMatcher["Distance Track Matcher"]
+    TrackMatcher --> MusicDB[("bengali_music_db.csv")]
+    
+    Coordinator --> get_track["get_track_tool"]
+    get_track --> Playback(["YouTube Playback"])
+    
+    Coordinator --> feedback["feedback_tool"]
+    feedback --> Safety["Safety Guard (Bilingual Interceptor)"]
+    feedback --> Transition["Transition Classifier (Calmer / No Change / Worse)"]
+    Transition --> Recalibrate["Recalibration Engine"]
+    Recalibrate --> TrackMatcher
+    
+    Coordinator --> conclude["conclude_tool"]
+    conclude --> LTM
+    conclude --> Grounding["Grounding Exercises (4-7-8 / 5-4-3-2-1)"]
+```
+
+### Component Hierarchy
 
 ```text
 CoordinatorAgent (Orchestrator)
