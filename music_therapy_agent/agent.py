@@ -323,13 +323,22 @@ def submit_session_feedback(mood_selection: str) -> str:
     # Match mood coordinate
     clean_mood = mood_selection.lower().strip()
     selected_mood = None
-    for k, v in EMOTION_COORDINATES.items():
-        if k.lower() == clean_mood or clean_mood in k.lower():
-            selected_mood = {"name": k, "coords": v}
-            break
+    
+    if clean_mood.isdigit():
+        val = int(clean_mood)
+        if 1 <= val <= 12:
+            keys = list(EMOTION_COORDINATES.keys())
+            mood_name = keys[val - 1]
+            selected_mood = {"name": mood_name, "coords": EMOTION_COORDINATES[mood_name]}
             
     if not selected_mood:
-        return f"Error: Mood '{mood_selection}' not recognized. Please choose from: {', '.join(EMOTION_COORDINATES.keys())}"
+        for k, v in EMOTION_COORDINATES.items():
+            if k.lower() == clean_mood or clean_mood in k.lower():
+                selected_mood = {"name": k, "coords": v}
+                break
+            
+    if not selected_mood:
+        return f"Error: Mood '{mood_selection}' not recognized. Please choose a number (1-12) or name from: {', '.join(EMOTION_COORDINATES.keys())}"
         
     prev_coords = session_state["current_coords"]
     new_coords = selected_mood["coords"]
@@ -641,20 +650,20 @@ You are an empathetic, professional clinical music therapist's assistant (Diagno
 Your primary goal is to analyze the user's natural language mood description and extract their current Valence-Arousal coordinates.
 
 Here is the predefined 12-box named emotional model coordinates reference:
-- "Afraid / Anxious": V=-0.6, A=0.8
-- "Angry / Tense": V=-0.7, A=0.6
-- "Distressed / Annoyed": V=-0.8, A=0.2
-- "Sad / Gloomy": V=-0.7, A=-0.4
-- "Depressed / Miserable": V=-0.6, A=-0.7
-- "Bored / Tired": V=-0.3, A=-0.8
-- "Sleepy / Sluggish": V=0.0, A=-0.9
-- "Calm / Relaxed": V=0.7, A=-0.7
-- "Content / At Ease": V=0.8, A=-0.3
-- "Happy / Pleased": V=0.9, A=0.1
-- "Joyous / Excited": V=0.7, A=0.6
-- "Surprised / Alert": V=0.0, A=0.8
+1. "Afraid / Anxious": V=-0.6, A=0.8
+2. "Angry / Tense": V=-0.7, A=0.6
+3. "Distressed / Annoyed": V=-0.8, A=0.2
+4. "Sad / Gloomy": V=-0.7, A=-0.4
+5. "Depressed / Miserable": V=-0.6, A=-0.7
+6. "Bored / Tired": V=-0.3, A=-0.8
+7. "Sleepy / Sluggish": V=0.0, A=-0.9
+8. "Calm / Relaxed": V=0.7, A=-0.7
+9. "Content / At Ease": V=0.8, A=-0.3
+10. "Happy / Pleased": V=0.9, A=0.1
+11. "Joyous / Excited": V=0.7, A=0.6
+12. "Surprised / Alert": V=0.0, A=0.8
 
-CRITICAL INSTRUCTION: Map the user's input to one of the 12 categories above. Only use custom coordinates if it does not align. Call `set_mood_coordinates_tool` with category, valence, and arousal.
+CRITICAL INSTRUCTION: Map the user's input to one of the 12 categories above (by number or name). Only use custom coordinates if it does not align. Call `set_mood_coordinates_tool` with category, valence, and arousal.
 """
 
 DiagnosticAgent = Agent(
@@ -671,14 +680,29 @@ Your task is to manage the onboarding, mood tracking, and goal settings for the 
 Workflow:
 1. First, call `check_profile_tool` to inspect if the user has an existing profile.
 2. If profile is missing, ask the user for their preferred genre and GAD-2 anxiety score, then call `onboarding_tool`.
-3. Ask the user how they are currently feeling. Route their mood description to `DiagnosticAgent` to get their starting coordinates.
+3. Ask the user how they are currently feeling. When asking, print the numbered list of 12 emotions clearly to let the user select by number (1-12), type the emotion name, or describe their mood in free-text:
+   1. Afraid / Anxious
+   2. Angry / Tense
+   3. Distressed / Annoyed
+   4. Sad / Gloomy
+   5. Depressed / Miserable
+   6. Bored / Tired
+   7. Sleepy / Sluggish
+   8. Calm / Relaxed
+   9. Content / At Ease
+   10. Happy / Pleased
+   11. Joyous / Excited
+   12. Surprised / Alert
+   Route the user's response to `DiagnosticAgent` to get their starting coordinates.
 4. Ask the user for their therapy goal (either 'calm' or 'focus' / 'study') and call `select_goal_tool` with the goal.
 5. After the goal is set, call `get_track_tool` to get the first track recommendation and display it (Title, Artist, Link) to the user.
-6. Once the user has listened, ask them how they feel. They can enter a mood index (1-12) or description. Call `feedback_tool` with their selection to recalibrate.
+6. Once the user has listened, ask them how they feel. They can enter a mood index (1-12), emotion name, or free-text description. 
+   - If they enter a number (1-12) or exact/partial name, you can call `feedback_tool` directly with their selection.
+   - If they enter a free-text description, route it to `DiagnosticAgent` first to resolve the category name and coordinates, and then call `feedback_tool` with the resolved category name.
 7. Call `get_track_tool` to present the next track, repeating feedback check-ins.
 8. After the final track, call `conclude_tool` to save progress to LTM and print the concluding exercises.
 
-Be warm, empathetic, and guide the user through these steps sequentially in conversation.
+Be warm, empathetic, and guide the user through these steps sequentially in conversation. Always list the 12 emotions clearly at the check-in step (step 3) so they have the choice.
 """
 
 CoordinatorAgent = Agent(
