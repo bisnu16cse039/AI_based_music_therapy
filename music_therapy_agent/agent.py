@@ -240,6 +240,8 @@ def set_mood_coordinates(category: str, valence: float, arousal: float) -> str:
     return f"Successfully registered mood: '{category}' at Valence={valence}, Arousal={arousal}."
 
 def select_session_goal(goal_type: str) -> str:
+    if not session_state.get("baseline_loaded"):
+        check_user_profile()
     goal_clean = goal_type.lower().strip()
     if "calm" in goal_clean:
         session_state["goal_type"] = "calm"
@@ -612,24 +614,31 @@ def conclude_session_and_save_ltm(session_state, transition_history):
 # ----------------------------------------------------
 
 def check_user_profile_tool_func() -> str:
+    """Check if the user has an existing profile loaded in long-term memory (LTM). Always call this tool immediately on the first turn of a session."""
     return check_user_profile()
 
 def onboarding_tool_func(preferred_genre: str, gad2_score: int) -> str:
+    """Onboard a new user by saving their preferred music genre and GAD-2 anxiety score to profile."""
     return run_onboarding(preferred_genre, gad2_score)
 
 def set_mood_coordinates_tool_func(category: str, valence: float, arousal: float) -> str:
+    """Set the user's initial mood coordinates on the Valence-Arousal grid. Call this tool only during the initial mood check-in."""
     return set_mood_coordinates(category, valence, arousal)
 
 def select_session_goal_tool_func(goal_type: str) -> str:
+    """Select the therapy session goal ('calm' or 'focus') and generate the trajectory. Only call this after the initial mood check-in is complete."""
     return select_session_goal(goal_type)
 
 def get_next_track_recommendation_tool_func() -> str:
+    """Get the next recommended music track. Call this to play a track for the user."""
     return get_next_track_recommendation()
 
 def submit_session_feedback_tool_func(mood_selection: str) -> str:
+    """Submit the user's emotional feedback AFTER they have finished listening to a recommended track. DO NOT call this at the beginning of the session."""
     return submit_session_feedback(mood_selection)
 
 def conclude_session_tool_func() -> str:
+    """Conclude the active therapy session, log session outcomes to LTM, and retrieve grounding exercises."""
     return conclude_session_and_log()
 
 # ----------------------------------------------------
@@ -675,12 +684,14 @@ DiagnosticAgent = Agent(
 
 COORDINATOR_INSTRUCTIONS = """
 You are the Therapist Session Coordinator Agent.
-Your task is to manage the onboarding, mood tracking, and goal settings for the music therapy session, and then guide them track-by-track.
+Your task is to manage the mood tracking and goal settings for the music therapy session, and then guide them track-by-track.
+
+CRITICAL INSTRUCTIONS:
+- You must call your tools immediately when the corresponding workflow step is reached, without chatting first or asking for user permission.
+- Do NOT call `feedback_tool` during the initial check-in (step 1). The `feedback_tool` is ONLY for track feedback (step 4) after a track has played.
 
 Workflow:
-1. First, call `check_profile_tool` to inspect if the user has an existing profile.
-2. If profile is missing, ask the user for their preferred genre and GAD-2 anxiety score, then call `onboarding_tool`.
-3. Ask the user how they are currently feeling. When asking, print the numbered list of 12 emotions clearly to let the user select by number (1-12), type the emotion name, or describe their mood in free-text:
+1. Ask the user how they are currently feeling. When asking, print the numbered list of 12 emotions clearly to let the user select by number (1-12), type the emotion name, or describe their mood in free-text:
    1. Afraid / Anxious
    2. Angry / Tense
    3. Distressed / Annoyed
@@ -694,24 +705,87 @@ Workflow:
    11. Joyous / Excited
    12. Surprised / Alert
    Route the user's response to `DiagnosticAgent` to get their starting coordinates.
-4. Ask the user for their therapy goal (either 'calm' or 'focus' / 'study') and call `select_goal_tool` with the goal.
-5. After the goal is set, call `get_track_tool` to get the first track recommendation and display it (Title, Artist, Link) to the user.
-6. Once the user has listened, ask them how they feel. They can enter a mood index (1-12), emotion name, or free-text description. 
-   - If they enter a number (1-12) or exact/partial name, you can call `feedback_tool` directly with their selection.
+2. Ask the user for their therapy goal (either 'calm' or 'focus' / 'study') and call `select_goal_tool` with the goal.
+3. After the goal is set, call `get_track_tool` to get the first track recommendation and display it (Title, Artist, Link) to the user.
+4. Once the user has listened, ask them how they feel. They can enter a mood index (1-12), emotion name, or free-text description. 
+   - If they enter a number (1-12) or exact/partial name, call `feedback_tool` directly with their selection.
    - If they enter a free-text description, route it to `DiagnosticAgent` first to resolve the category name and coordinates, and then call `feedback_tool` with the resolved category name.
-7. Call `get_track_tool` to present the next track, repeating feedback check-ins.
-8. After the final track, call `conclude_tool` to save progress to LTM and print the concluding exercises.
+5. Call `get_track_tool` to present the next track, repeating feedback check-ins.
+6. After the final track, call `conclude_tool` to save progress to LTM and print the concluding exercises.
 
-Be warm, empathetic, and guide the user through these steps sequentially in conversation. Always list the 12 emotions clearly at the check-in step (step 3) so they have the choice.
+Be warm, empathetic, and guide the user through these steps sequentially in conversation. Always list the 12 emotions clearly at the check-in step (step 1) so they have the choice.
 """
 
 CoordinatorAgent = Agent(
     name="CoordinatorAgent",
     model=GEMINI_MODEL,
     instruction=COORDINATOR_INSTRUCTIONS,
-    tools=[check_profile_tool, onboarding_tool, select_goal_tool, get_track_tool, feedback_tool, conclude_tool],
+    tools=[select_goal_tool, get_track_tool, feedback_tool, conclude_tool],
     sub_agents=[DiagnosticAgent]
 )
 
 # Expose CoordinatorAgent as root_agent for adk web UI discovery
 root_agent = CoordinatorAgent
+
+# ----------------------------------------------------
+# Session Initialization Monkeypatches for Web UI
+# ----------------------------------------------------
+
+try:
+    from google.adk.sessions.in_memory_session_service import InMemorySessionService
+    from google.adk.sessions.database_session_service import DatabaseSessionService
+    from google.adk.events.event import Event
+    from google.adk.events.event_actions import EventActions
+    from google.genai import types
+
+    async def append_welcome_event(service, session):
+        if session.events:
+            return
+            
+        welcome_text = (
+            "How are you feeling right now? Please choose from the following options by typing the number or the emotion name:\n\n"
+            "1. Afraid / Anxious\n"
+            "2. Angry / Tense\n"
+            "3. Distressed / Annoyed\n"
+            "4. Sad / Gloomy\n"
+            "5. Depressed / Miserable\n"
+            "6. Bored / Tired\n"
+            "7. Sleepy / Sluggish\n"
+            "8. Calm / Relaxed\n"
+            "9. Content / At Ease\n"
+            "10. Happy / Pleased\n"
+            "11. Joyous / Excited\n"
+            "12. Surprised / Alert"
+        )
+            
+        welcome_event = Event(
+            invocation_id="init_invocation_id",
+            author="CoordinatorAgent",
+            content=types.Content(
+                role="model",
+                parts=[types.Part(text=welcome_text)]
+            ),
+            actions=EventActions(skip_summarization=True)
+        )
+        
+        await service.append_event(session=session, event=welcome_event)
+
+    original_in_memory_create = InMemorySessionService.create_session
+    original_database_create = DatabaseSessionService.create_session
+
+    async def patched_create_session_in_memory(self, *args, **kwargs):
+        session = await original_in_memory_create(self, *args, **kwargs)
+        await append_welcome_event(self, session)
+        return session
+
+    async def patched_create_session_database(self, *args, **kwargs):
+        session = await original_database_create(self, *args, **kwargs)
+        await append_welcome_event(self, session)
+        return session
+
+    InMemorySessionService.create_session = patched_create_session_in_memory
+    DatabaseSessionService.create_session = patched_create_session_database
+
+except Exception as e:
+    pass
+
